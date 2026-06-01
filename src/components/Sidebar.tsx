@@ -6,7 +6,6 @@ import {
   Rocket,
   Bug,
   RotateCcw,
-  ChevronLeft,
 } from 'lucide-react';
 import logo from '../assets/logo.png';
 
@@ -71,14 +70,6 @@ export default function Sidebar() {
         ))}
       </ul>
 
-      {/* collapse chevron */}
-      <button
-        className="mt-2 flex h-7 w-7 items-center justify-center rounded-full text-[#9aa6bd] hover:bg-[#f1f5fb]"
-        aria-label="Collapse"
-        type="button"
-      >
-        <ChevronLeft size={16} />
-      </button>
     </nav>
   );
 }
