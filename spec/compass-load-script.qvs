@@ -1,0 +1,334 @@
+// ============================================================
+// COMPASS - QLIK SENSE LOAD SCRIPT
+// Constellation schema: hub-and-spoke via project_id
+// 6 facts, 4 prefixed calendars, 2 shared dims
+// Nightly refresh. No real-time.
+// ============================================================
+
+// ============================================================
+// SECTION 0 - CONNECTION
+// ============================================================
+
+LIB CONNECT TO 'Compass_PostgreSQL';
+
+// ============================================================
+// SECTION 1 - USER NAME LOOKUP (ApplyMap - load first)
+// Used by Builds, Deployments, PRs to resolve user_id → name
+// NOT joined to work_items (that uses direct FK to Users table)
+// ============================================================
+
+UserNameMap:
+MAPPING LOAD
+    user_id,
+    user_display_name
+FROM [lib://Compass_PostgreSQL/users]
+(sql SELECT user_id, user_display_name FROM users);
+
+
+// ============================================================
+// SECTION 2 - HUB: Projects
+// project_name = Mador (the business term used in all filters)
+// ============================================================
+
+Projects:
+LOAD
+    project_id,
+    project_name       AS project_name,    // "Mador" in the UI
+    project_description
+FROM [lib://Compass_PostgreSQL/projects]
+(sql SELECT * FROM projects);
+
+
+// ============================================================
+// SECTION 3 - DIM: Users
+// Direct association to WorkItems only (via wi_assigned_to_user_id)
+// Other facts use ApplyMap - do NOT add more FK joins here
+// ============================================================
+
+Users:
+LOAD
+    user_id,
+    user_display_name,
+    user_email,
+    user_unique_name
+FROM [lib://Compass_PostgreSQL/users]
+(sql SELECT * FROM users);
+
+
+// ============================================================
+// SECTION 4 - FACT: WorkItems
+// Screens 1-3 (Overview, Bugs, Retrospect)
+// Includes: wi_type, wi_state, area_path → wi_team, timestamps
+// ============================================================
+
+WorkItems:
+LOAD
+    work_item_id,
+    project_id,                                             // → Projects
+    work_item_type                  AS wi_type,             // Feature / Product Backlog Item / Task / Bug
+    state                           AS wi_state,            // New / Committed / Active / Closed / Done / Removed
+    title                           AS wi_title,
+    area_path,
+    SubField(area_path, '\', 2)     AS wi_team,             // derive team from area_path level 2
+    iteration_path                  AS wi_iteration_path,
+    SubField(iteration_path, '\', -1) AS wi_iteration,      // leaf sprint name
+    created_date                    AS wi_created_date,     // integer date - calendar key
+    created_datetime                AS wi_created_datetime, // timestamp - for active-period set analysis
+    closed_date                     AS wi_closed_date,
+    closed_datetime                 AS wi_closed_datetime,
+    wi_assigned_to_user_id,                                 // → Users (direct join)
+    url                             AS wi_url,
+    parent_id                       AS wi_parent_id
+FROM [lib://Compass_PostgreSQL/work_items]
+(sql SELECT * FROM work_items);
+
+
+// ============================================================
+// SECTION 5 - FACT: BugDetails
+// 1:1 with WorkItems where wi_type = 'Bug'
+// Keyed by work_item_id (no separate PK)
+// ============================================================
+
+BugDetails:
+LOAD
+    work_item_id,                   // → WorkItems
+    severity                        AS bug_severity,         // 1=Critical 2=High 3=Medium 4=Low
+    PICK(severity,
+        'Critical','High','Medium','Low')   AS bug_severity_label,
+    priority                        AS bug_priority,
+    resolution                      AS bug_resolution
+FROM [lib://Compass_PostgreSQL/bug_details]
+(sql SELECT * FROM bug_details);
+
+
+// ============================================================
+// SECTION 6 - FACT: TaskDetails
+// 1:1 with WorkItems where wi_type = 'Task'
+// Hours live here, not on WorkItems
+// ============================================================
+
+TaskDetails:
+LOAD
+    work_item_id,                   // → WorkItems
+    original_estimate               AS task_original_estimate,  // Planned Hours
+    completed_work                  AS task_completed_work,     // Actual Hours
+    remaining_work                  AS task_remaining_work,     // Remaining Hours
+    activity                        AS task_activity            // Development / Testing / Management / Non-Working
+FROM [lib://Compass_PostgreSQL/task_details]
+(sql SELECT * FROM task_details);
+
+
+// ============================================================
+// SECTION 7 - FACT: Builds
+// Screen 4 - CI pipeline runs
+// User name resolved via ApplyMap at load time (not joined)
+// build_original_build_run_id groups retry attempts
+// ============================================================
+
+Builds:
+LOAD
+    build_id,
+    project_id,                     // → Projects
+    pipeline_name                   AS build_pipeline_name,
+    build_number                    AS build_build_number,
+    status                          AS build_status,            // succeeded / failed / canceled / partiallySucceeded
+    result                          AS build_result,
+    reason                          AS build_reason,            // individualCI / batchedCI / manual / schedule / pullRequest
+    original_build_run_id           AS build_original_build_run_id, // groups retries
+    ApplyMap('UserNameMap',
+        requested_by_user_id,
+        'Unknown')                  AS build_requested_by_name,
+    start_time                      AS build_start_datetime,
+    finish_time                     AS build_finish_datetime,
+    Date(Floor(start_time))         AS build_start_date,        // calendar key (integer)
+    url                             AS build_url
+FROM [lib://Compass_PostgreSQL/builds]
+(sql SELECT * FROM builds);
+
+
+// ============================================================
+// SECTION 8 - FACT: Deployments
+// Screen 5 - CD / Release runs
+// Two user fields: triggered_by and requested_for
+// deployment_queue_datetime → approval gate wait KPI
+// ============================================================
+
+Deployments:
+LOAD
+    deployment_id,
+    project_id,                     // → Projects
+    release_name                    AS deployment_release_name,
+    release_definition_name         AS deployment_pipeline_name,
+    environment_name                AS deployment_environment,
+    status                          AS deployment_status,               // succeeded / failed / canceled / partiallySucceeded
+    operation_status                AS deployment_operation_status,     // approved / rejected / queued / pending (different from status)
+    reason                          AS deployment_reason,               // automated / manual / scheduled
+    ApplyMap('UserNameMap',
+        triggered_by_user_id,
+        'Unknown')                  AS triggered_by_name,
+    ApplyMap('UserNameMap',
+        requested_for_user_id,
+        'Unknown')                  AS requested_for_name,
+    queue_time                      AS deployment_queue_datetime,       // approval gate: queue → start
+    start_time                      AS deployment_start_datetime,
+    finish_time                     AS deployment_finish_datetime,
+    Date(Floor(start_time))         AS deployment_start_date,          // calendar key
+    url                             AS deployment_url
+FROM [lib://Compass_PostgreSQL/deployments]
+(sql SELECT * FROM deployments);
+
+
+// ============================================================
+// SECTION 9 - FACT: PullRequests
+// Screen 6
+// ============================================================
+
+PullRequests:
+LOAD
+    pull_request_id                 AS pr_id,
+    project_id,                     // → Projects
+    title                           AS pr_title,
+    status                          AS pr_status,           // active / completed / abandoned
+    ApplyMap('UserNameMap',
+        created_by_user_id,
+        'Unknown')                  AS pr_author_name,
+    repository_name                 AS pr_repository_name,
+    source_ref_name                 AS pr_source_branch,
+    target_ref_name                 AS pr_target_branch,
+    creation_date                   AS pr_created_datetime,
+    closed_date                     AS pr_closed_datetime,
+    Date(Floor(creation_date))      AS pr_created_date,     // calendar key
+    url                             AS pr_url
+FROM [lib://Compass_PostgreSQL/pull_requests]
+(sql SELECT * FROM pull_requests);
+
+
+// ============================================================
+// SECTION 10 - DROP MAPPING TABLE
+// Must drop after all facts are loaded
+// ============================================================
+
+DROP TABLE UserNameMap;
+
+
+// ============================================================
+// SECTION 11 - CALENDARS
+// One prefixed copy per fact-date combination.
+// Prefix every derived field so Qlik does NOT auto-merge across calendars.
+// 
+// CRITICAL: Linked calendars cause pre-association which breaks
+// active-period set analysis. See §8 of compass-data-model.md.
+// The vStartDate / vEndDate variables (set via input boxes per sheet)
+// handle active-period queries independently of these calendars.
+// These calendars serve only the standard Year/Quarter/Iteration filters.
+// ============================================================
+
+// --- 11a: WorkItems calendar (shared by WorkItems, BugDetails, TaskDetails) ---
+
+WI_Calendar:
+LOAD DISTINCT
+    wi_created_date                         AS wi_created_date,         // join key - matches WorkItems
+    Year(wi_created_date)                   AS wi_Year,
+    'Q' & Ceil(Month(wi_created_date)/3)    AS wi_Quarter,
+    wi_iteration                            AS wi_Iteration,            // from WorkItems (already derived)
+    Month(wi_created_date)                  AS wi_Month,
+    Week(wi_created_date)                   AS wi_Week
+RESIDENT WorkItems
+WHERE IsNull(wi_created_date) = 0;
+
+
+// --- 11b: Builds calendar ---
+
+Build_Calendar:
+LOAD DISTINCT
+    build_start_date                                AS build_start_date,    // join key
+    Year(build_start_date)                          AS build_Year,
+    'Q' & Ceil(Month(build_start_date)/3)           AS build_Quarter,
+    Month(build_start_date)                         AS build_Month,
+    Week(build_start_date)                          AS build_Week
+RESIDENT Builds
+WHERE IsNull(build_start_date) = 0;
+
+
+// --- 11c: Deployments calendar ---
+
+Deploy_Calendar:
+LOAD DISTINCT
+    deployment_start_date                                   AS deployment_start_date,  // join key
+    Year(deployment_start_date)                             AS dep_Year,
+    'Q' & Ceil(Month(deployment_start_date)/3)              AS dep_Quarter,
+    Month(deployment_start_date)                            AS dep_Month,
+    Week(deployment_start_date)                             AS dep_Week
+RESIDENT Deployments
+WHERE IsNull(deployment_start_date) = 0;
+
+
+// --- 11d: PR calendar ---
+
+PR_Calendar:
+LOAD DISTINCT
+    pr_created_date                                 AS pr_created_date,    // join key
+    Year(pr_created_date)                           AS pr_Year,
+    'Q' & Ceil(Month(pr_created_date)/3)            AS pr_Quarter,
+    Month(pr_created_date)                          AS pr_Month,
+    Week(pr_created_date)                           AS pr_Week
+RESIDENT PullRequests
+WHERE IsNull(pr_created_date) = 0;
+
+
+// ============================================================
+// SECTION 12 - VARIABLES
+// vStartDate and vEndDate are NOT set here.
+// They are exposed via Vizlib variable input boxes per sheet.
+// Set analysis reads them via $(=Num(vStartDate)) inline.
+// ============================================================
+
+// UI control variables (cosmetic defaults, overridden by input boxes)
+SET vStartDate = MakeDate(Year(Today()), 1, 1);     // default: current year start
+SET vEndDate   = Today();                            // default: today
+
+
+// ============================================================
+// SECTION 13 - INLINE REFERENCE TABLE: Severity Labels
+// Not loaded from DB - derived at load time for display only
+// ============================================================
+
+SeverityMap:
+MAPPING LOAD * INLINE [
+    bug_severity, bug_severity_display
+    1, 1 - Critical
+    2, 2 - High
+    3, 3 - Medium
+    4, 4 - Low
+];
+
+
+// ============================================================
+// KEY FIELD ASSOCIATIONS SUMMARY
+// (Qlik resolves these automatically from matching field names)
+//
+//   Projects.project_id
+//       → WorkItems.project_id
+//       → Builds.project_id
+//       → Deployments.project_id
+//       → PullRequests.project_id
+//
+//   WorkItems.work_item_id
+//       → BugDetails.work_item_id
+//       → TaskDetails.work_item_id
+//
+//   Users.user_id
+//       → WorkItems.wi_assigned_to_user_id
+//       (Builds / Deployments / PRs: resolved via ApplyMap, no join)
+//
+//   WorkItems.wi_created_date  → WI_Calendar.wi_created_date
+//   Builds.build_start_date    → Build_Calendar.build_start_date
+//   Deployments.deployment_start_date → Deploy_Calendar.deployment_start_date
+//   PullRequests.pr_created_date → PR_Calendar.pr_created_date
+//
+// GOTCHAS:
+//   - Never put a variable expression inside set analysis - always inline
+//   - Always +1 on upper date bound: {"<=$(=Num(vEndDate)+1)"}
+//   - Calendar pre-filters rows before set analysis - use variables for active-period
+//   - Users links to WorkItems ONLY - adding more joins creates synthetic keys
+// ============================================================

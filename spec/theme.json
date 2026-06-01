@@ -1,0 +1,140 @@
+{
+  "_name": "Compass",
+  "_description": "Compass dashboard theme — dark navy background, white cards, blue accent",
+  "_version": "1.0.0",
+
+  "classRef": "compass-theme",
+
+  "css": "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); * { font-family: 'Inter', sans-serif; }",
+
+  "_variables": {
+    "primaryColor":   "#3b82f6",
+    "primaryFontColor": "#111827",
+    "dataColors":     ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4","#f97316","#84cc16"]
+  },
+
+  "color": {
+    "primary":    "#3b82f6",
+    "secondary":  "#1d4ed8",
+    "accent":     "#3b82f6",
+    "background": "#0a0e2a",
+    "label":      "#6b7280"
+  },
+
+  "fontFamily": "Inter, sans-serif",
+  "fontSize":   "13px",
+
+  "dataColors": {
+    "primaryColor":   "#3b82f6",
+    "othersColor":    "#9ca3af",
+    "errorColor":     "#ef4444",
+    "colors": [
+      "#3b82f6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#8b5cf6",
+      "#06b6d4",
+      "#f97316",
+      "#84cc16"
+    ]
+  },
+
+  "object": {
+    "straightTable": {
+      "header": {
+        "fontSize":   "11px",
+        "fontFamily": "Inter, sans-serif",
+        "fontWeight": "600",
+        "color":      "#6b7280"
+      },
+      "content": {
+        "fontSize":   "13px",
+        "fontFamily": "Inter, sans-serif",
+        "color":      "#111827"
+      }
+    },
+
+    "pivotTable": {
+      "header": {
+        "fontSize":   "11px",
+        "fontFamily": "Inter, sans-serif",
+        "fontWeight": "600",
+        "color":      "#6b7280"
+      }
+    },
+
+    "barChart": {
+      "axis": {
+        "label": {
+          "fontSize":   "11px",
+          "fontFamily": "Inter, sans-serif",
+          "color":      "#9ca3af"
+        },
+        "title": {
+          "fontSize":   "11px",
+          "fontFamily": "Inter, sans-serif",
+          "fontWeight": "500",
+          "color":      "#6b7280"
+        }
+      },
+      "gridLine": {
+        "stroke":      "#1e2a4a",
+        "strokeWidth": "1px"
+      },
+      "legend": {
+        "fontSize":   "11px",
+        "fontFamily": "Inter, sans-serif",
+        "color":      "#6b7280"
+      }
+    },
+
+    "lineChart": {
+      "axis": {
+        "label": {
+          "fontSize":   "11px",
+          "fontFamily": "Inter, sans-serif",
+          "color":      "#9ca3af"
+        },
+        "title": {
+          "fontSize":   "11px",
+          "fontFamily": "Inter, sans-serif",
+          "fontWeight": "500",
+          "color":      "#6b7280"
+        }
+      },
+      "gridLine": {
+        "stroke":      "#1e2a4a",
+        "strokeWidth": "1px"
+      },
+      "legend": {
+        "fontSize":   "11px",
+        "fontFamily": "Inter, sans-serif",
+        "color":      "#6b7280"
+      },
+      "point": {
+        "radius": 3,
+        "stroke": "#3b82f6"
+      }
+    }
+  },
+
+  "selections": {
+    "confirmed": {
+      "background": "#3b82f6",
+      "color":      "#ffffff"
+    },
+    "selected": {
+      "background": "#dbeafe",
+      "color":      "#1e40af"
+    },
+    "excluded": {
+      "background": "#f3f4f6",
+      "color":      "#9ca3af"
+    },
+    "alternative": {
+      "background": "#eff6ff",
+      "color":      "#374151"
+    }
+  }
+}

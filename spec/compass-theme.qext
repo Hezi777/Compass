@@ -1,0 +1,7 @@
+{
+  "name":        "Compass",
+  "description": "Compass dashboard theme — dark navy, white cards, blue accent (#3b82f6), Inter font",
+  "type":        "theme",
+  "version":     "1.0.0",
+  "author":      "Hen"
+}

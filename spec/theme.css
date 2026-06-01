@@ -1,0 +1,274 @@
+/* ============================================================
+   Compass Theme — theme.css
+   Qlik Sense custom theme stylesheet
+   Scoped to .compass-theme (set via classRef in theme.json)
+   NOTE: !important is required — Qlik injects high-specificity
+         styles that will silently override rules without it.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ══════════════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════════════ */
+.compass-theme * {
+  --bg:     #0a0e2a;
+  --card:   #ffffff;
+  --accent: #3b82f6;
+  --muted:  #6b7280;
+  --axis:   #9ca3af;
+  --line:   #e5e7eb;
+  --zebra:  #f9fafb;
+  --text:   #111827;
+  --radius: 14px;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  font-family: 'Inter', sans-serif !important;
+  box-sizing: border-box;
+}
+
+/* ══════════════════════════════════════════════════
+   SHEET / PANEL BACKGROUND
+══════════════════════════════════════════════════ */
+.compass-theme .qv-panel-sheet {
+  background: radial-gradient(ellipse at 30% 50%, #0d2060, #0a0e2a, #050816) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   ALL OBJECTS — base card style
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-content-container {
+  background:    var(--card) !important;
+  border-radius: var(--radius) !important;
+  box-shadow:    var(--shadow) !important;
+  border:        none !important;
+  overflow:      hidden !important;
+}
+
+/* Object title / header */
+.compass-theme .qv-object-header {
+  font-family: 'Inter', sans-serif !important;
+  font-size:   13px !important;
+  font-weight: 600 !important;
+  color:       var(--text) !important;
+  padding:     14px 18px 6px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   Qlik: .qv-object-kpi
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-kpi {
+  padding: 20px 22px !important;
+}
+
+.compass-theme .qv-object-kpi .kpi-value,
+.compass-theme .qv-object-kpi .value {
+  font-size:   2rem !important;
+  font-weight: 700 !important;
+  color:       var(--text) !important;
+  line-height: 1.1 !important;
+}
+
+.compass-theme .qv-object-kpi .kpi-label,
+.compass-theme .qv-object-kpi .label {
+  font-size:      11px !important;
+  font-weight:    600 !important;
+  color:          var(--muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom:  6px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   Qlik: .qv-object-table  (straight table)
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-table {
+  border-radius: var(--radius) !important;
+  overflow:      hidden !important;
+}
+
+/* Header row */
+.compass-theme .qv-st-header-cell,
+.compass-theme .qv-object-table th {
+  background:     var(--zebra) !important;
+  color:          var(--muted) !important;
+  font-size:      11px !important;
+  font-weight:    600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  padding:        10px 14px !important;
+  border-bottom:  1px solid var(--line) !important;
+}
+
+/* Data cells */
+.compass-theme .qv-st-data-cell,
+.compass-theme .qv-object-table td {
+  font-size:     13px !important;
+  color:         var(--text) !important;
+  padding:       9px 14px !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+/* Zebra rows */
+.compass-theme .qv-object-table tbody tr:nth-child(even) {
+  background: var(--zebra) !important;
+}
+.compass-theme .qv-object-table tbody tr:nth-child(odd) {
+  background: #ffffff !important;
+}
+.compass-theme .qv-object-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Row hover */
+.compass-theme .qv-object-table tbody tr:hover td {
+  background: #eff6ff !important;
+}
+
+/* ══════════════════════════════════════════════════
+   Qlik: .qv-object-linechart
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-linechart .chart-wrap {
+  margin-top:  16px !important;
+  border-top:  1px solid var(--line) !important;
+  padding-top: 14px !important;
+}
+
+.compass-theme .qv-object-linechart .axis-labels {
+  margin-top:            10px !important;
+  display:               grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  font-size:             11px !important;
+  letter-spacing:        0.08em !important;
+  color:                 var(--axis) !important;
+  font-weight:           600 !important;
+}
+
+/* Axis text */
+.compass-theme .qv-object-linechart text {
+  font-family: 'Inter', sans-serif !important;
+  font-size:   11px !important;
+  fill:        var(--axis) !important;
+}
+
+/* Gridlines */
+.compass-theme .qv-object-linechart .gridline,
+.compass-theme .qv-object-linechart line.grid {
+  stroke:       var(--line) !important;
+  stroke-width: 1px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   Qlik: .qv-object-barchart
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-barchart .chart-wrap {
+  margin-top:  16px !important;
+  border-top:  1px solid var(--line) !important;
+  padding-top: 14px !important;
+}
+
+.compass-theme .qv-object-barchart text {
+  font-family: 'Inter', sans-serif !important;
+  font-size:   11px !important;
+  fill:        var(--axis) !important;
+}
+
+.compass-theme .qv-object-barchart .gridline,
+.compass-theme .qv-object-barchart line.grid {
+  stroke:       var(--line) !important;
+  stroke-width: 1px !important;
+}
+
+.compass-theme .qv-object-barchart .axis-labels {
+  margin-top:  10px !important;
+  display:     grid !important;
+  font-size:   11px !important;
+  color:       var(--axis) !important;
+  font-weight: 600 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   Qlik: .qv-object-filterpane  (dropdown / filter)
+══════════════════════════════════════════════════ */
+.compass-theme .qv-object-filterpane {
+  align-self:     start !important;
+  display:        flex !important;
+  flex-direction: column !important;
+}
+
+.compass-theme .qv-object-filterpane .filter-label,
+.compass-theme .qv-object-filterpane .qv-listbox-header {
+  font-size:      11px !important;
+  font-weight:    600 !important;
+  color:          var(--muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom:  6px !important;
+}
+
+.compass-theme .qv-object-filterpane .filter-select,
+.compass-theme .qv-object-filterpane select {
+  width:         100% !important;
+  padding:       10px 14px !important;
+  border-radius: 10px !important;
+  border:        1px solid #cfd8e4 !important;
+  font:          600 14px 'Inter', sans-serif !important;
+  background:    var(--accent) !important;
+  color:         #ffffff !important;
+  outline:       none !important;
+  appearance:    none !important;
+}
+
+/* Selected / active listbox item */
+.compass-theme .qv-object-filterpane .qv-cell-selected {
+  background: var(--accent) !important;
+  color:      #ffffff !important;
+}
+
+/* Excluded listbox item */
+.compass-theme .qv-object-filterpane .qv-cell-excluded {
+  background: #f3f4f6 !important;
+  color:      var(--axis) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   SELECTIONS BAR
+══════════════════════════════════════════════════ */
+.compass-theme .qv-selections-toolbar {
+  background:    #1e2a4a !important;
+  border-bottom: 1px solid #2d3f6b !important;
+}
+
+.compass-theme .qv-selection-item {
+  background:    #3b82f6 !important;
+  border-radius: 6px !important;
+  color:         #ffffff !important;
+  font-size:     12px !important;
+  font-weight:   600 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   STATUS PILLS  (for use in text objects / tables)
+══════════════════════════════════════════════════ */
+.compass-theme .status-pill {
+  display:       inline-block !important;
+  border-radius: 999px !important;
+  padding:       3px 10px !important;
+  font-size:     11px !important;
+  font-weight:   600 !important;
+}
+.compass-theme .pill-blue   { background: #dbeafe !important; color: #1d4ed8 !important; }
+.compass-theme .pill-yellow { background: #fef9c3 !important; color: #854d0e !important; }
+.compass-theme .pill-red    { background: #fee2e2 !important; color: #dc2626 !important; }
+.compass-theme .pill-green  { background: #dcfce7 !important; color: #16a34a !important; }
+
+/* ══════════════════════════════════════════════════
+   SCROLLBARS
+══════════════════════════════════════════════════ */
+.compass-theme ::-webkit-scrollbar       { width: 6px !important; height: 6px !important; }
+.compass-theme ::-webkit-scrollbar-track { background: transparent !important; }
+.compass-theme ::-webkit-scrollbar-thumb {
+  background:    #cbd5e1 !important;
+  border-radius: 99px !important;
+}
+.compass-theme ::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
