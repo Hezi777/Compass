@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img width="140" height="140" alt="Compass logo" src="assets/logo.png" />
+  <img width="140" height="140" alt="Compass logo" src="src/assets/logo.png" />
   <br />
   <b>Compass</b>
 </h1>
