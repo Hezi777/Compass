@@ -168,7 +168,7 @@ export default function Bugs() {
           {/* Top 10 Oldest Open Bugs — colored by severity */}
           <ChartCard index={5} title="Top 10 Oldest Open Bugs" subtitle="In Days">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={oldest as unknown as typeof avgClosure} margin={{ top: 22, right: 8, left: 4, bottom: 28 }}>
+              <BarChart data={oldest as unknown as typeof avgClosure} margin={{ top: 22, right: 8, left: 42, bottom: 28 }}>
                 <CartesianGrid vertical={false} stroke={COLORS.line} />
                 <XAxis dataKey="name" {...axisProps} angle={-35} textAnchor="end" interval={0} height={48} />
                 <YAxis hide />

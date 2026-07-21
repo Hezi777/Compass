@@ -162,7 +162,7 @@ export default function Overview() {
             right={<Toggle options={['Features', 'PBIs'] as const} value={topMode} onChange={setTopMode} />}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topData} margin={{ top: 22, right: 8, left: 4, bottom: 18 }}>
+              <BarChart data={topData} margin={{ top: 22, right: 8, left: 30, bottom: 18 }}>
                 <CartesianGrid vertical={false} stroke={COLORS.line} />
                 <XAxis dataKey="name" {...axisProps} angle={-35} textAnchor="end" interval={0} height={40} />
                 <YAxis hide />

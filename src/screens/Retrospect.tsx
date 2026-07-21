@@ -153,7 +153,7 @@ export default function Retrospect() {
               }
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={byProject} margin={{ top: 18, right: 12, left: 4, bottom: 28 }} barGap={2}>
+                <BarChart data={byProject} margin={{ top: 18, right: 12, left: 62, bottom: 28 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke={COLORS.line} />
                   <XAxis dataKey="name" {...axisProps} angle={-30} textAnchor="end" interval={0} height={46} />
                   <YAxis hide />
