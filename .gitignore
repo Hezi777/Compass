@@ -3,3 +3,8 @@ dist/
 .DS_Store
 *.local
 .claude/
+
+# User guide (source, assets and rendered PDF) - kept out of the repo
+docs/user-guide/
+
+.playwright-cli/

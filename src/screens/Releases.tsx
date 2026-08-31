@@ -130,7 +130,7 @@ export default function Releases() {
 
           <ChartCard index={5} title="Average CD Pipeline Duration (Mins)">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={cdDuration} margin={{ top: 22, right: 8, left: 4, bottom: 30 }}>
+              <BarChart data={cdDuration} margin={{ top: 22, right: 8, left: 56, bottom: 30 }}>
                 <CartesianGrid vertical={false} stroke={COLORS.line} />
                 <XAxis dataKey="name" {...axisProps} angle={-35} textAnchor="end" interval={0} height={52} />
                 <YAxis hide />

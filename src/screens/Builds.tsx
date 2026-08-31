@@ -127,7 +127,7 @@ export default function Builds() {
 
           <ChartCard index={4} title="Top 10 Slowest Pipelines (Mins)">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={slowest} margin={{ top: 22, right: 8, left: 4, bottom: 30 }}>
+              <BarChart data={slowest} margin={{ top: 22, right: 8, left: 60, bottom: 30 }}>
                 <CartesianGrid vertical={false} stroke={COLORS.line} />
                 <XAxis dataKey="name" {...axisProps} angle={-35} textAnchor="end" interval={0} height={52} />
                 <YAxis hide />
