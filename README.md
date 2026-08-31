@@ -34,6 +34,41 @@ The original runs in Qlik Sense on a nightly PostgreSQL snapshot pulled from Azu
 
 ---
 
+## The BI work behind it
+
+The React app is the front half. The modeling is in [`spec/`](spec/), which is the
+part worth reading if you care about the data rather than the charts.
+
+| File | What it covers |
+|---|---|
+| [`compass-data-model.md`](spec/compass-data-model.md) | Full schema and measure reference: 6 fact tables, 4 prefixed calendars, 2 shared dimensions, and the reasoning for each |
+| [`compass-load-script.qvs`](spec/compass-load-script.qvs) | The Qlik load script that builds it |
+| [`compass-theme.qext`](spec/compass-theme.qext), [`theme.json`](spec/theme.json) | The Qlik theme extension |
+| [`design-system.md`](spec/design-system.md) | Color system, typography, chart conventions |
+| `*-spec.md` | Per-screen specs: overview, PRs, builds, releases, bugs, retrospect |
+
+### Why constellation and not star
+
+Six facts (`work_items`, `task_details`, `bug_details`, `builds`, `deployments`,
+`pull_requests`) share one dimensional hub (`projects`) and one user dimension,
+but they have **different grains and different time fields**. A star schema would
+force them into a single fact table. A snowflake would over-normalize the
+dimensions for no gain. A constellation lets each fact keep its own grain and its
+own calendar while still sharing the project context that makes filtering work
+across all six screens at once.
+
+### The calendar-prefix problem
+
+Every calendar table prefixes its derived fields (`wi_Year`, `build_Year`,
+`dep_Year`, `pr_Year`) rather than using a shared `Year`. Without that, Qlik
+auto-associates same-named fields across calendars and you get either synthetic
+keys or, worse, silent wrong-date associations that look plausible on the screen.
+
+This is the kind of thing that does not show up until a number is quietly wrong
+in production, which is most of why the model is written down at all.
+
+---
+
 ## Screens
 
 | # | Screen | What's on it |
